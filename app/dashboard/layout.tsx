@@ -2,8 +2,8 @@ import Providers from '@/components/layout/providers';
 import type { Metadata } from 'next';
 import "../globals.css"
 import Navbar from '@/components/dashboard/navbar';
-import { Sidebar } from 'lucide-react';
 import ProtectedRoute from '@/components/layout/protected';
+import Sidebar from '@/components/dashboard/sidebar';
 
 export const metadata: Metadata = {
     title: 'Dashboard',

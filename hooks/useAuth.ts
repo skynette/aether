@@ -1,5 +1,4 @@
-// hooks/useAuth.ts
-import { useAuthStore } from '@/lib/store'
+import { useAuthStore, User } from '@/lib/store'
 import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import axios from 'axios'
@@ -31,7 +30,9 @@ export function useAuth() {
             return response.data
         },
         onSuccess: (data) => {
-            setAuth(data.user, data.token)
+            const token = data.data.access_token
+            const user: User = { id: 'userId', email: data.data.refresh_token }
+            setAuth(user, token)
             setError(null)
         },
         onError: (error: Error) => {
