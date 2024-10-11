@@ -19,6 +19,7 @@ import {
     QueryClientProvider,
     QueryClient,
 } from "@tanstack/react-query";
+import { Toaster } from '../ui/toaster';
 
 
 console.log(process.env.NEXT_PUBLIC_ENABLE_TESTNETS);
@@ -40,6 +41,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
             <QueryClientProvider client={queryClient}>
                 <RainbowKitProvider>
                     {children}
+                    <Toaster />
                     <Next13ProgressBar height='2px' color='#344D89' options={{ showSpinner: true }} showOnShallow />
                 </RainbowKitProvider>
             </QueryClientProvider>
