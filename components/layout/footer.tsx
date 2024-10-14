@@ -2,26 +2,16 @@ import Link from 'next/link'
 
 export default function Footer() {
     return (
-        <footer className="bg-gray-100 text-black">
-            <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 md:flex md:items-center md:justify-between lg:px-8">
-                <div className="flex justify-center space-x-6 md:order-2">
-                    <Link href="/privacy" className=" hover:text-gray-500">
-                        Privacy Policy
-                    </Link>
-                    <Link href="/terms" className=" hover:text-gray-500">
-                        Terms of Service
-                    </Link>
-                    <a href="https://twitter.com/yourcompany" className=" hover:text-gray-500">
-                        Twitter
-                    </a>
-                    <a href="https://github.com/yourcompany" className=" hover:text-gray-500">
-                        GitHub
-                    </a>
-                </div>
-                <div className="mt-8 md:mt-0 md:order-1">
-                    <p className="text-center text-base ">
-                        &copy; 2024 Your Company, Inc. All rights reserved.
-                    </p>
+        <footer className="bg-purple-100 py-10">
+            <div className="container mx-auto px-4 max-w-4xl">
+                <div className="flex flex-col md:flex-row justify-between items-center">
+                    <div className="text-2xl font-bold text-purple-600 mb-4 md:mb-0">Aether</div>
+                    <nav className="flex space-x-6 mb-4 md:mb-0">
+                        <a href="#" className="hover:text-purple-600 transition">Privacy Policy</a>
+                        <a href="#" className="hover:text-purple-600 transition">Terms of Service</a>
+                        <a href="#" className="hover:text-purple-600 transition">Contact Us</a>
+                    </nav>
+                    <div className="text-gray-600">© 2024 Aether. All rights reserved.</div>
                 </div>
             </div>
         </footer>

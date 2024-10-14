@@ -1,4 +1,3 @@
-// lib/store.ts
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
@@ -9,6 +8,7 @@ export interface User {
 }
 
 export interface AuthState {
+    businessId: string | null
     user: User | null
     token: string | null
     login: (user: User, token: string) => void
@@ -19,18 +19,21 @@ export interface AuthState {
 export const useAuthStore = create<AuthState>()(
     persist(
         (set) => ({
+            businessId: null,
             user: null,
             token: null,
             login: (user, token) => {
                 set((state) => ({
                     user: user ? { ...state.user, ...user } : null,
-                    token
+                    token,
+                    businessId: state.businessId,
                 }));
             },
             logout: () => set({ user: null, token: null }),
             updateUser: (updatedUser) =>
                 set((state) => ({
                     user: state.user ? { ...state.user, ...updatedUser } : null,
+                    businessId: state.businessId,
                 })),
         }),
         {

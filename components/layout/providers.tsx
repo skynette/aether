@@ -37,15 +37,15 @@ const config = getDefaultConfig({
 const Providers = ({ children }: { children: React.ReactNode }) => {
     const queryClient = new QueryClient();
     return (
-        <WagmiProvider config={config}>
+        // <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
-                <RainbowKitProvider>
+                {/* <RainbowKitProvider> */}
                     {children}
                     <Toaster />
                     <Next13ProgressBar height='2px' color='#344D89' options={{ showSpinner: true }} showOnShallow />
-                </RainbowKitProvider>
+                {/* </RainbowKitProvider> */}
             </QueryClientProvider>
-        </WagmiProvider>
+        // </WagmiProvider>
     );
 };
 
