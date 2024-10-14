@@ -2,10 +2,10 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/hooks/useAuth'
+import { useUser } from '@/hooks/useUser'
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-    const { user } = useAuth()
+    const { user } = useUser()
     const router = useRouter()
 
     useEffect(() => {

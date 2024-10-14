@@ -1,39 +1,20 @@
-import { useAuthStore, User } from '@/lib/store'
-import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
-import axios from 'axios'
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
-
-interface LoginCredentials {
-    email: string
-    password: string
-}
-
-interface SignUpCredentials {
-    country: string
-    phone: string
-    firstname: string
-    lastname: string
-    business: string
-    email: string
-    password: string
-}
+import { useMutation } from '@tanstack/react-query'
+import { useAuthStore } from '@/lib/store'
+import { useUser } from './useUser'
+import * as authApi from '@/lib/api/auth'
 
 export function useAuth() {
-    const { user, token, login: setAuth, logout: clearAuth } = useAuthStore()
+    const { token, setToken: setAuth, clearToken: clearAuth } = useAuthStore()
+    const { refetchUser } = useUser()
     const [error, setError] = useState<Error | null>(null)
 
-    const loginMutation = useMutation({
-        mutationFn: async (credentials: LoginCredentials) => {
-            const response = await axios.post(`${API_BASE_URL}/auth/login`, credentials)
-            return response.data
-        },
-        onSuccess: (data) => {
-            const token = data.data.access_token
-            const user: User = { id: 'userId', email: data.data.refresh_token }
-            setAuth(user, token)
+    const loginMutation = useMutation<authApi.LoginResponse, Error, authApi.LoginCredentials>({
+        mutationFn: authApi.login,
+        onSuccess: async (data) => {
+            setAuth(data.data.token)
             setError(null)
+            await refetchUser()
         },
         onError: (error: Error) => {
             setError(error)
@@ -41,12 +22,8 @@ export function useAuth() {
     })
 
     const signupMutation = useMutation({
-        mutationFn: async (credentials: SignUpCredentials) => {
-            const response = await axios.post(`${API_BASE_URL}/auth/signup`, credentials)
-            return response.data
-        },
-        onSuccess: (data) => {
-            setAuth(data.user, data.token)
+        mutationFn: authApi.signup,
+        onSuccess: () => {
             setError(null)
         },
         onError: (error: Error) => {
@@ -55,56 +32,35 @@ export function useAuth() {
     })
 
     const requestPasswordResetMutation = useMutation({
-        mutationFn: async (email: string) => {
-            const response = await axios.post(`${API_BASE_URL}/auth/get-otp`, {
-                email,
-                action: 'PASSWORD_RESET'
-            })
-            return response.data
-        },
+        mutationFn: authApi.requestPasswordReset,
         onError: (error: Error) => {
             setError(error)
         },
     })
 
     const resetPasswordMutation = useMutation({
-        mutationFn: async ({ email, otp, password }: { email: string; otp: string; password: string }) => {
-            const response = await axios.post(`${API_BASE_URL}/auth/password-reset`, {
-                email,
-                otp,
-                password
-            })
-            return response.data
-        },
+        mutationFn: ({ email, otp, password }: { email: string; otp: string; password: string }) =>
+            authApi.resetPassword(email, otp, password),
         onError: (error: Error) => {
             setError(error)
         },
     })
 
     const getOtpMutation = useMutation({
-        mutationFn: async (email: string) => {
-            const response = await axios.post(`${API_BASE_URL}/auth/get-otp`, {
-                email,
-                action: 'VERIFY_EMAIL'
-            })
-            return response.data
-        },
+        mutationFn: authApi.getOtp,
         onError: (error: Error) => {
             setError(error)
         },
     })
 
     const verifyEmailMutation = useMutation({
-        mutationFn: async ({ email, otp }: { email: string; otp: string }) => {
-            const response = await axios.post(`${API_BASE_URL}/auth/email-verify`, { email, otp })
-            return response.data
-        },
+        mutationFn: ({ email, otp }: { email: string; otp: string }) => authApi.verifyEmail(email, otp),
         onError: (error: Error) => {
             setError(error)
         },
     })
 
-    const login = async (credentials: LoginCredentials) => {
+    const login = async (credentials: authApi.LoginCredentials) => {
         try {
             await loginMutation.mutateAsync(credentials)
             return true
@@ -113,7 +69,7 @@ export function useAuth() {
         }
     }
 
-    const signup = async (credentials: SignUpCredentials) => {
+    const signup = async (credentials: authApi.SignUpCredentials) => {
         try {
             await signupMutation.mutateAsync(credentials)
             return true
@@ -161,7 +117,6 @@ export function useAuth() {
     }
 
     return {
-        user,
         token,
         login,
         signup,
@@ -170,7 +125,11 @@ export function useAuth() {
         verifyEmail,
         requestPasswordReset,
         resetPassword,
-        isLoading: loginMutation.isPending || signupMutation.isPending || requestPasswordResetMutation.isPending || resetPasswordMutation.isPending,
+        isLoading:
+            loginMutation.isPending ||
+            signupMutation.isPending ||
+            requestPasswordResetMutation.isPending ||
+            resetPasswordMutation.isPending,
         error,
     }
 }

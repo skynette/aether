@@ -3,27 +3,48 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useAuth } from '@/hooks/useAuth'
 import { Eye, EyeOff } from 'lucide-react'
+import { useAuthStore } from '@/lib/store'
+import { useUser } from '@/hooks/useUser'
+import axios from 'axios'
+
+const API_BASE_URL = 'http://89.116.111.27:8083/api/v1'
 
 export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
-    const { login, isLoading, error } = useAuth()
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
     const router = useRouter()
+
+    const { setToken } = useAuthStore()
+    const { refetchUser } = useUser()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        setIsLoading(true)
+        setError(null)
+
         try {
-            const success = await login({ email, password })
-            if (success) {
+            const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+                email,
+                password
+            })
+
+            if (response.data.code === 200) {
+                setToken(response.data.data.token)
+                const res = refetchUser()
+                console.log({ res })
                 router.push('/dashboard')
             } else {
-                console.error('Login failed')
+                setError('Login failed. Please check your credentials.')
             }
         } catch (error) {
             console.error('Login error:', error)
+            setError('An error occurred during login. Please try again.')
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -132,7 +153,7 @@ export default function LoginPage() {
                 </form>
                 {error && (
                     <p className="mt-2 text-center text-sm text-red-600" role="alert">
-                        {error.message}
+                        {error}
                     </p>
                 )}
             </div>

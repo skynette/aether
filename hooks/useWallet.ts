@@ -5,7 +5,7 @@ import axios from 'axios'
 
 export function useWallets() {
     const queryClient = useQueryClient()
-    const { token, logout } = useAuthStore()
+    const { token, clearToken } = useAuthStore()
 
     const walletsQuery = useQuery<Wallet[], Error>({
         queryKey: ['wallets'],
@@ -13,7 +13,7 @@ export function useWallets() {
         enabled: !!token,
         retry: (failureCount, error) => {
             if (axios.isAxiosError(error) && error.response?.status === 401) {
-                logout()
+                clearToken()
                 return false
             }
             return failureCount < 3
@@ -27,7 +27,7 @@ export function useWallets() {
         },
         onError: (error) => {
             if (axios.isAxiosError(error) && error.response?.status === 401) {
-                logout()
+                clearToken()
             }
         },
     })

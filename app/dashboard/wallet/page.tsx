@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast'
 import { useModalStore } from '@/stores/modal-store'
 import { WalletCard } from '@/components/dashboard/wallet-card'
 import { ModalManager } from '@/components/modals/modal-manager'
-import { useWallets } from '@/hooks/use-wallet'
+import { useWallets } from '@/hooks/useWallet'
 
 export default function WalletsPage() {
     const { toast } = useToast()
