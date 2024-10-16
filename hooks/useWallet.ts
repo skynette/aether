@@ -1,19 +1,16 @@
 import { createWallet, fetchWallets, Wallet } from '@/lib/api/wallet'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useAuthStore } from '@/lib/store'
 import axios from 'axios'
 
 export function useWallets() {
     const queryClient = useQueryClient()
-    const { token, clearToken } = useAuthStore()
 
     const walletsQuery = useQuery<Wallet[], Error>({
         queryKey: ['wallets'],
         queryFn: fetchWallets,
-        enabled: !!token,
+        // enabled: !!token,
         retry: (failureCount, error) => {
             if (axios.isAxiosError(error) && error.response?.status === 401) {
-                clearToken()
                 return false
             }
             return failureCount < 3
@@ -27,7 +24,6 @@ export function useWallets() {
         },
         onError: (error) => {
             if (axios.isAxiosError(error) && error.response?.status === 401) {
-                clearToken()
             }
         },
     })

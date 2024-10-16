@@ -4,47 +4,25 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff } from 'lucide-react'
-import { useAuthStore } from '@/lib/store'
-import { useUser } from '@/hooks/useUser'
-import axios from 'axios'
-
-const API_BASE_URL = 'http://89.116.111.27:8083/api/v1'
+import { useAuth } from '@/hooks/useAuth'
+import { fetchUserData } from '@/lib/api/user'
 
 export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const [rememberMe, setRememberMe] = useState(false)
     const router = useRouter()
 
-    const { setToken } = useAuthStore()
-    const { refetchUser } = useUser()
+    const { login, isLoading, error } = useAuth()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        setIsLoading(true)
-        setError(null)
-
-        try {
-            const response = await axios.post(`${API_BASE_URL}/auth/login`, {
-                email,
-                password
-            })
-
-            if (response.data.code === 200) {
-                setToken(response.data.data.token)
-                const res = refetchUser()
-                console.log({ res })
-                router.push('/dashboard')
-            } else {
-                setError('Login failed. Please check your credentials.')
-            }
-        } catch (error) {
-            console.error('Login error:', error)
-            setError('An error occurred during login. Please try again.')
-        } finally {
-            setIsLoading(false)
+        const success = await login({ email, password })
+        if (success) {
+            // const userData = await fetchUserData()
+            // console.log({ userData })
+            router.push('/dashboard')
         }
     }
 
@@ -68,7 +46,7 @@ export default function LoginPage() {
                     </p>
                 </div>
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                    <input type="hidden" name="remember" value="true" />
+                    <input type="hidden" name="remember" value={rememberMe.toString()} />
                     <div className="rounded-md shadow-sm -space-y-px">
                         <div>
                             <label htmlFor="email-address" className="sr-only">
@@ -122,6 +100,8 @@ export default function LoginPage() {
                                 name="remember-me"
                                 type="checkbox"
                                 className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
                             />
                             <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
                                 Remember me
@@ -153,7 +133,7 @@ export default function LoginPage() {
                 </form>
                 {error && (
                     <p className="mt-2 text-center text-sm text-red-600" role="alert">
-                        {error}
+                        {error.message}
                     </p>
                 )}
             </div>

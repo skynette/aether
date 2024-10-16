@@ -18,11 +18,12 @@ export interface SignUpCredentials {
 export interface LoginResponse {
     code: number
     data: {
-        token: string
+        access_token: string
     }
 }
 
 export const login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
+    console.log("login api called at the base")
     return await apiClient.post<LoginResponse>('/auth/login', credentials)
 }
 

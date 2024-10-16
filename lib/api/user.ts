@@ -8,9 +8,11 @@ export interface UserResponse {
 
 export const fetchUserData = async (): Promise<UserResponse> => {
     try {
+        console.log("fetching user data")
         const response = await apiClient.get<{ code: number; data: any }>('/user/')
 
         if (response.code !== 200) {
+            console.log("failed to fetch user data")
             throw new Error('Failed to fetch user data')
         }
 
@@ -33,7 +35,7 @@ export const fetchUserData = async (): Promise<UserResponse> => {
                 webhook: userData.business[0].webhook
             }
         }
-
+        console.log("got usetr and business data returning")
         return { user, business }
     } catch (error) {
         console.error('Error fetching user data:', error)

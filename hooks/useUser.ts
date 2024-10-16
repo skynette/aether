@@ -1,30 +1,23 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
-import { useAuthStore, useUserStore, User } from '@/lib/store'
 import { fetchUserData, updateUserData, UserResponse } from '@/lib/api/user'
+import { User } from '@/lib/store'
 
 export function useUser() {
     const queryClient = useQueryClient()
-    const { token, clearToken } = useAuthStore()
-    const { setUser, setBusiness, clearUserAndBusiness } = useUserStore()
 
     const userQuery = useQuery<UserResponse, Error>({
         queryKey: ['user'],
         queryFn: fetchUserData,
-        enabled: !!token,
+        // enabled: !!token,
+        staleTime: Infinity,
         retry: (failureCount, error) => {
             if (axios.isAxiosError(error) && error.response?.status === 401) {
-                clearToken()
-                clearUserAndBusiness()
                 return false
             }
             return failureCount < 3
         },
         select: (data: UserResponse) => {
-            setUser(data.user)
-            if (data.business) {
-                setBusiness(data.business)
-            }
             return data
         },
     })
@@ -38,12 +31,9 @@ export function useUser() {
                 }
                 return oldData
             })
-            setUser(updatedUser)
         },
         onError: (error) => {
             if (axios.isAxiosError(error) && error.response?.status === 401) {
-                clearToken()
-                clearUserAndBusiness()
             }
         },
     })

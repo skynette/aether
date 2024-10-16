@@ -1,22 +1,18 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { useAuthStore } from '@/lib/store'
-import { useUser } from './useUser'
 import * as authApi from '@/lib/api/auth'
 
 export function useAuth() {
-    const { token, setToken: setAuth, clearToken: clearAuth } = useAuthStore()
-    const { refetchUser } = useUser()
     const [error, setError] = useState<Error | null>(null)
 
     const loginMutation = useMutation<authApi.LoginResponse, Error, authApi.LoginCredentials>({
         mutationFn: authApi.login,
-        onSuccess: async (data) => {
-            setAuth(data.data.token)
+        onSuccess: (data) => {
+            console.log("login success from mutation")
             setError(null)
-            await refetchUser()
         },
         onError: (error: Error) => {
+            console.log("Error occcured so setting error from mutation")
             setError(error)
         },
     })
@@ -113,11 +109,10 @@ export function useAuth() {
     }
 
     const logout = () => {
-        clearAuth()
+
     }
 
     return {
-        token,
         login,
         signup,
         logout,
